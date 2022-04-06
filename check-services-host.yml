@@ -1,0 +1,17 @@
+
+- hosts: host
+  become: yes
+#  become_method: su
+  tasks: 
+  - name: Check Services on Systems
+    command: systemctl status "{{ item }}"
+    with_items:
+    - nscapi
+    - nscst
+    - postgresql
+    - guardian
+    register: result 
+    ignore_errors: yes
+  - name: shouting report
+    debug: 
+     var: result
