@@ -1,0 +1,20 @@
+---
+- name: Reboot all machines
+  hosts: prod
+  gather_facts: no
+  tags:
+  - updates
+  - kernel
+
+  vars_files:
+    - /home/nscsvc/vars.yml
+#    - /home/nscsvc/vault.yml
+
+  tasks:
+
+    - name: Restart server
+      command: /sbin/shutdown -r +1 --no-wall
+      async: 0
+      poll: 0
+      ignore_errors: true
+

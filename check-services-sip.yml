@@ -1,0 +1,11 @@
+---
+  - name: Check Services on Sip
+    shell: systemctl status "{{ item }}" | grep Active
+    with_items:
+    - asterisk
+    register: result 
+    ignore_errors: yes
+  - name: shouting report
+    debug: 
+     var: result
+
