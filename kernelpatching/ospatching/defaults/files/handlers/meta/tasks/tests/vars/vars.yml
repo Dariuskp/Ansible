@@ -1,0 +1,12 @@
+---
+#ansible_user: nscsvc
+#ansible_ssh_pass: '{{ nscsvc }}'
+ansible_become: true
+ansible_become_user: root
+#ansible_become_method: su
+#ansible_become_pass: '{{ root }}'
+#proxy_env:
+#  http_proxy:
+#  https_proxy:
+email_addr:
+  - darius.powell@alvaria.com
