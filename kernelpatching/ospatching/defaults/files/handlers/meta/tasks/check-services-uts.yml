@@ -1,0 +1,12 @@
+---
+  - name: Check Services on UTS
+    shell: systemctl status "{{ item }}" | grep Active
+    with_items:
+    - nscivr2
+    - nscapigwuddp
+    register: result 
+    ignore_errors: yes
+  - name: shouting report
+    debug: 
+     var: result
+
