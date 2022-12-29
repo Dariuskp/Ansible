@@ -4,14 +4,14 @@
 #  environment: "{{ proxy_env }}"
 
   vars_files:
-    - /home/nscsvc/vars.yml
-#    - /home/nscsvc/vault.yml
+    - /home/daxpoad/vars.yml
+#    - /home/daxpoad/vault.yml
 
   tasks:
 
-    - name: Stop guardian service
+    - name: Stop crond service
       service:
-        name: guardian
+        name: crond
         state: stopped
       ignore_errors: yes
       tags: updates
@@ -31,7 +31,7 @@
 
     - name: Create new reports files
       file:
-        path: ~/patching_reports/alvaria_updates{{ item }}
+        path: ~/patching_reports/application_updates{{ item }}
         state: touch
         mode: '0666'
       with_items:
@@ -44,7 +44,7 @@
 
     - name: Download CentOS repos
       yum:
-        name: https://atllxyum1.noblesys.com/alvaria-release-latest.rpm
+        name: https://daxpo-app-repos/centos/centos-repo.repo
         state: latest
 #        validate_certs: no
       when: ansible_facts['distribution'] == "CentOS"
@@ -70,7 +70,7 @@
 
     - name: Download RHEL repo
       get_url:
-        url: https://atllxyum1.noblesys.com/repo/rhel/alvaria-rhel.repo
+        url: https://daxpo-app-repos/redhat/rhel-repo.repo
         dest: /etc/yum.repos.d
         mode: '0755'
       when: ansible_facts['distribution'] == "RedHat"
@@ -92,47 +92,47 @@
 
     - name: Create report header
       shell: |
-        echo "Alvaria OS Patching Report" > ~/patching_reports/alvaria_updates.report.header
-        echo "--------------------------------" >> ~/patching_reports/alvaria_updates.report.header
-        echo "Date          : `date`" >> ~/patching_reports/alvaria_updates.report.header
-        echo "Machine       : ${HOSTNAME}" >> ~/patching_reports/alvaria_updates.report.header
+        echo "Daxpo OS Patching Report" > ~/patching_reports/daxpo_updates.report.header
+        echo "--------------------------------" >> ~/patching_reports/daxpo_updates.report.header
+        echo "Date          : `date`" >> ~/patching_reports/daxpo_updates.report.header
+        echo "Machine       : ${HOSTNAME}" >> ~/patching_reports/daxpo_updates.report.header
         echo " " >> ~/patching_reports/alvaria_updates.report.header
-        echo "Starting OS Version    : `cat /etc/redhat-release`" >> ~/patching_reports/alvaria_updates.report.header
-        echo "Starting Kernel Version: `uname -r`" >> ~/patching_reports/alvaria_updates.report.header
-        echo " " >> ~/patching_reports/alvaria_updates.report.header
+        echo "Starting OS Version    : `cat /etc/redhat-release`" >> ~/patching_reports/daxpo_updates.report.header
+        echo "Starting Kernel Version: `uname -r`" >> ~/patching_reports/daxpo_updates.report.header
+        echo " " >> ~/patching_reports/daxpo_updates.report.header
       tags: reports
 
     - name: Generate list of packages and their version numbers for updates
       args:
         warn: False
       shell: |
-        /usr/bin/yum list updates|egrep ".i386|.i686|.x86_64|.noarch|.src"|sed "s/.i386//"|sed "s/.noarch//"|sed "s/.x86_64//"|sed "s/.src//"|grep -v Excluding > ~/patching_reports/alvaria_updates-a.tmp
-        cat ~/patching_reports/alvaria_updates-a.tmp|awk '{ print $1 } ' > ~/patching_reports/alvaria_updates-b.tmp
+        /usr/bin/yum list updates|egrep ".i386|.i686|.x86_64|.noarch|.src"|sed "s/.i386//"|sed "s/.noarch//"|sed "s/.x86_64//"|sed "s/.src//"|grep -v Excluding > ~/patching_reports/daxpo_updates-a.tmp
+        cat ~/patching_reports/daxpo_updates-a.tmp|awk '{ print $1 } ' > ~/patching_reports/daxpo_updates-b.tmp
    
     - name: Count packages
-      shell: cat ~/patching_reports/alvaria_updates-a.tmp|wc -l
+      shell: cat ~/patching_reports/daxpo_updates-a.tmp|wc -l
       register: package_count
       tags: updates
 
     - name: Create report body
       shell: |
-        echo "PACKAGES TO BE UPDATED" >> ~/patching_reports/alvaria_updates.report.body
-        echo "----------------------" >> ~/patching_reports/alvaria_updates.report.body
-        cat ~/patching_reports/alvaria_updates-b.tmp
+        echo "PACKAGES TO BE UPDATED" >> ~/patching_reports/daxpo_updates.report.body
+        echo "----------------------" >> ~/patching_reports/daxpo_updates.report.body
+        cat ~/patching_reports/daxpo_updates-b.tmp
       register: package_name
       when: package_count.stdout | int > 0
       tags: reports
 
     - name: Populate report body with package names and versions
       shell: |
-        echo -e "Package: {{ item }}\nCurrent Version: `rpm -q --queryformat '%{VERSION}-%{RELEASE}\n' {{ item }}|tail -1`  New Version: `cat ~/patching_reports/alvaria_updates-a.tmp|grep -w {{ item }}|head -1|awk '{ print $2 } '`\n" >> ~/patching_reports/alvaria_updates.report.body
+        echo -e "Package: {{ item }}\nCurrent Version: `rpm -q --queryformat '%{VERSION}-%{RELEASE}\n' {{ item }}|tail -1`  New Version: `cat ~/patching_reports/daxpo_updates-a.tmp|grep -w {{ item }}|head -1|awk '{ print $2 } '`\n" >> ~/patching_reports/daxpo_updates.report.body
       loop: "{{ package_name.stdout_lines }}"
       when: package_count.stdout | int > 0
       changed_when: False
       tags: reports
 
     - name: Populate report body if no updates available
-      shell: echo "SYSTEM UP TO DATE - NO UPDATES AVAILABLE" >> ~/patching_reports/alvaria_updates.report.body
+      shell: echo "SYSTEM UP TO DATE - NO UPDATES AVAILABLE" >> ~/patching_reports/daxpo_updates.report.body
       when: package_count.stdout | int == 0
       tags: reports
 
@@ -213,7 +213,7 @@
 
     - name: Email reports
       shell: |
-        /usr/local/bin/nscmail -s "`uname -n`: Alvaria OS Patching Results" -b ~/patching_reports/alvaria_updates.report -t "{{ item }}" -m mail.noblesys.com || /bin/true
+        /usr/local/bin/nscmail -s "`uname -n`: Daxpo OS Patching Results" -b ~/patching_reports/daxpo_updates.report -t "{{ item }}" -m mail.daxpo.com || /bin/true
       loop: "{{ email_addr }}"
       changed_when: False
       ignore_errors: yes
