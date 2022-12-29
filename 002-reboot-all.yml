@@ -7,8 +7,8 @@
   - kernel
 
   vars_files:
-    - /home/nscsvc/vars.yml
-#    - /home/nscsvc/vault.yml
+    - /home/daxpoad/vars.yml
+#    - /home/daxpoad/vault.yml
 
   tasks:
 
