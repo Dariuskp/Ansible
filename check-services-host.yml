@@ -2,13 +2,9 @@
   - name: Check Services on Host
     shell: systemctl status "{{ item }}" | grep Active 
     with_items:
-    - nscaas
-    - nscdatasvr
-    - nsccs
-    - nscaqmserver
-    - nscst
-    - nscapi
-    - nscapigwhost
+    - sshd
+    - crond
+    - postgresql
     register: result
     ignore_errors: yes
   - name: shouting report
