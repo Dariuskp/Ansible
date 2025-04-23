@@ -1,0 +1,56 @@
+---
+- name: Harden Linux Server
+  hosts: local
+  become: yes
+  tasks:
+
+    # 1 perform updates
+    - name: Update packages via dnf
+      dnf:
+        name: "*"
+        state: latest
+
+    # 2 Install and configure firewall
+    - name: Install firewalld
+      dnf:
+        name: firewalld
+        state: present
+
+    - name: Enable and start firewalld
+      systemd:
+        name: firewalld
+        enabled: yes
+        state: started
+
+    - name: Allow essential ports
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+      loop:
+        - ssh
+        - http
+        - https
+
+    - name: Reload firewall
+      systemd:
+        name: firewalld
+        enabled: yes
+        state: restarted
+
+    - name: Diasble bluetooth services
+      systemd:
+        name: bluetooth
+        state: stopped
+        enabled: no
+
+    - name: Diasble CUPS Service (Printing)
+      systemd:
+        name: cups
+        state: stopped
+        enabled: no
+
+    - name: Disable root login in ssh_config
+      lineinfile:
+        path: /etc/ssh/ssh_config
+                                                                                                                                                                                     1,1           Top
