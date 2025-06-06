@@ -201,20 +201,3 @@
         - name: Recreate initramfs
           shell: dracut --kver `needs-restarting -r | grep kernel | awk '{ print $3 }'`.x86_64
 
-    - name: Compile reports
-      shell: |
-        echo "Ending OS Version      : `cat /etc/redhat-release`" >> ~/patching_reports/alvaria_updates.report.header
-        echo "Ending Kernel Version  : `needs-restarting -r | grep kernel | awk '{ print $3 }'`.x86_64" >> ~/patching_reports/alvaria_updates.report.header
-        echo " " >> ~/patching_reports/alvaria_updates.report.header
-        echo " " >> ~/patching_reports/alvaria_updates.report.header
-        cat ~/patching_reports/alvaria_updates.report.header > ~/patching_reports/alvaria_updates.report
-        cat ~/patching_reports/alvaria_updates.report.body >> ~/patching_reports/alvaria_updates.report
-      tags: reports
-
-    - name: Email reports
-      shell: |
-        /usr/local/bin/nscmail -s "`uname -n`: Daxpo OS Patching Results" -b ~/patching_reports/daxpo_updates.report -t "{{ item }}" -m mail.daxpo.com || /bin/true
-      loop: "{{ email_addr }}"
-      changed_when: False
-      ignore_errors: yes
-      tags: email
