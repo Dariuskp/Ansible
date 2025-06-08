@@ -1,22 +1,32 @@
----   
-   - name: Make sure kernel installed
-     tags: 
-     - updates
-     - kernel
+---
+- name: Patch all CentOS & RHEL servers
+  hosts: test
+  become: yes
+#  environment: "{{ proxy_env }}"
 
-     block:
-       - name: Check if new kernel was installed
-         shell: /usr/bin/needs-restarting -r || /bin/true
-         register: check_kernel
-         changed_when: False
+  vars_files:
+    - /home/dariusp/vars.yml
+    - /home/dariusp/vault.yml
 
-       - name: Find new initramfs version
-         shell: "needs-restarting -r | grep kernel | awk '{ print $3 }'"
-         register: initramfs
-         when: "'kernel -> 3' in check_kernel.stdout"
-         changed_when: False
+  tasks:
+    - name: Make sure kernel installed during patching 
+      tags: 
+      - updates
+      - kernel
 
-       - name: Make sure new initramfs is present
-         shell: "ls /boot/initramfs-{{ initramfs.stdout }}.x86_64.img"
-         when: "'kernel -> 3' in check_kernel.stdout"
-         changed_when: False
+      block:
+        - name: Check if new kernel was installed
+          shell: /usr/bin/needs-restarting -r || /bin/true
+          register: check_kernel
+          changed_when: False
+
+        - name: Find new initramfs version
+          shell: "needs-restarting -r | grep kernel | awk '{ print $3 }'"
+          register: initramfs
+          when: "'kernel -> 3' in check_kernel.stdout"
+          changed_when: False
+
+        - name: Make sure new initramfs is present
+          shell: "ls /boot/initramfs-{{ initramfs.stdout }}.x86_64.img"
+          when: "'kernel -> 3' in check_kernel.stdout"
+          changed_when: False
