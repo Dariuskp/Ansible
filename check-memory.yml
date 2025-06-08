@@ -1,4 +1,14 @@
 ---
+- name: Check Memory before patching 
+  hosts: test
+  become: yes
+#  environment: "{{ proxy_env }}" # option available for proxy
+
+  vars_files:
+    - /home/dariusp/vars.yml
+    - /home/dariusp/vault.yml
+
+  tasks:
     - name: Check memory
       shell: free -m | grep Mem | awk '{ print $4 }'
       register: free_mem
