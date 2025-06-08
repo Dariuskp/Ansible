@@ -1,13 +1,24 @@
 ---
-  - name: Check Services on Host
-    shell: systemctl status "{{ item }}" | grep Active 
-    with_items:
-    - sshd
-    - crond
-    - postgresql
-    register: result
-    ignore_errors: yes
-  - name: shouting report
-    debug:
-     var: result
+- name: Check basic services on host
+  hosts: test
+  become: yes
+#  environment: "{{ proxy_env }}"
+
+  vars_files:
+    - /home/dariusp/vars.yml
+    - /home/dariusp/vault.yml
+
+  tasks:
+    - name: Check Services on Host
+      shell: systemctl status "{{ item }}" | grep Active 
+      with_items:
+      - sshd
+      - crond
+      - postgresql
+      register: result
+      ignore_errors: yes
+      
+    - name: shouting report
+      debug:
+       var: result
 
