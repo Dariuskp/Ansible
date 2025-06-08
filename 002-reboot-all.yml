@@ -1,14 +1,14 @@
 ---
 - name: Reboot all machines
-  hosts: prod
+  hosts: test
   gather_facts: no
   tags:
   - updates
   - kernel
 
   vars_files:
-    - /home/daxpoad/vars.yml
-#    - /home/daxpoad/vault.yml
+    - /home/dariusp/vars.yml
+   - /home/dariusp/vault.yml
 
   tasks:
 
