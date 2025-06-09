@@ -39,38 +39,7 @@ This repository is a collection of Ansible automation content curated and create
 
 ```
 
----
 
-🔐 Security Hardening Features
-
-The `harden.yml` playbook includes:
-
-- Disabling root SSH
-- Enforcing SSH key auth
-- Setting up auditd
-- UFW or firewalld configuration
-- Installing OS updates
-
----
-
-📦 Supported Roles
-
-| Role   | Description                   |
-|--------|-------------------------------|
-| nginx  | Install and configure NGINX   |
-| docker | Setup Docker and Docker Compose |
-| users  | Create secure admin users     |
-
----
-
-🔄 CI/CD Integration
-
-You can integrate this repo with:
-
-- GitHub Actions
-- Jenkins
-- GitLab CI
-- Terraform for provisioning, Ansible for config
 
 ---
 
