@@ -5,8 +5,8 @@
 #  environment: "{{ proxy_env }}"
 
   vars_files:
-    - /home/dariusp/vars.yml
-    - /home/dariusp/vault.yml
+    - /home/user/vars.yml
+    - /home/user/vault.yml
 
   tasks:
 
@@ -19,14 +19,14 @@
 
     - name: Create reports directory
       file:
-        path: /home/dariusp/patching_reports
+        path: /home/user/patching_reports
         state: directory
         mode: '0755'
       tags: reports
 
     - name: Create new reports files
       file:
-        path: /home/dariusp/patching_reports/yum_updates.report{{ item }}
+        path: /home/user/patching_reports/yum_updates.report{{ item }}
         state: touch
         mode: '0666'
       loop:
@@ -62,21 +62,21 @@
 
     - name: Create report header
       shell: |
-        echo "Yum OS Patching Report" > /home/dariusp/patching_reports/yum_updates.report.header
-        echo "--------------------------------" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo "Date          : `date`" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo "Machine       : {{ inventory_hostname }}" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo " " >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo "Starting OS Version    : `cat /etc/os-release`" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo "Starting Kernel Version: `uname -r`" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo " " >> /home/dariusp/patching_reports/yum_updates.report.header
+        echo "Yum OS Patching Report" > /home/user/patching_reports/yum_updates.report.header
+        echo "--------------------------------" >> /home/user/patching_reports/yum_updates.report.header
+        echo "Date          : `date`" >> /home/user/patching_reports/yum_updates.report.header
+        echo "Machine       : {{ inventory_hostname }}" >> /home/user/patching_reports/yum_updates.report.header
+        echo " " >> /home/user/patching_reports/yum_updates.report.header
+        echo "Starting OS Version    : `cat /etc/os-release`" >> /home/user/patching_reports/yum_updates.report.header
+        echo "Starting Kernel Version: `uname -r`" >> /home/user/patching_reports/yum_updates.report.header
+        echo " " >> /home/user/patching_reports/yum_updates.report.header
       tags: reports
 
     - name: Create report body
       shell: |
-        echo "PACKAGES TO BE UPDATED" >> /home/dariusp/patching_reports/yum_updates.report.body
-        echo "----------------------" >> /home/dariusp/patching_reports/yum_updates.report.body
-        cat /home/dariusp/patching_reports/yum_updates.report-b.tmp >> /home/dariusp/patching_reports/yum_updates.report.body
+        echo "PACKAGES TO BE UPDATED" >> /home/user/patching_reports/yum_updates.report.body
+        echo "----------------------" >> /home/user/patching_reports/yum_updates.report.body
+        cat /home/user/patching_reports/yum_updates.report-b.tmp >> /home/user/patching_reports/yum_updates.report.body
       register: package_name
       when: package_count.stdout | int > 0
       tags: reports
@@ -105,7 +105,7 @@
 
     - name: Upgrade packages via yum with verbose output
       shell: |
-        yum -v -y update > /home/dariusp/patching_reports/yum_update_verbose.log 2>&1
+        yum -v -y update > /home/user/patching_reports/yum_update_verbose.log 2>&1
       register: yum_update_result
       async: 1800
       poll: 60
@@ -145,25 +145,25 @@
 
     - name: Compile reports
       shell: |
-        echo "Ending OS Version      : `cat /etc/os-release`" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo "Ending Kernel Version  : `needs-restarting -r | grep kernel | awk '{ print $3 }'`.x86_64" >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo " " >> /home/dariusp/patching_reports/yum_updates.report.header
-        echo " " >> /home/dariusp/patching_reports/yum_updates.report.header
-        cat /home/dariusp/patching_reports/yum_updates.report.header > /home/dariusp/patching_reports/yum_updates.report
-        cat /home/dariusp/patching_reports/yum_updates.report.header >> /home/dariusp/patching_reports/yum_updates.report
+        echo "Ending OS Version      : `cat /etc/os-release`" >> /home/user/patching_reports/yum_updates.report.header
+        echo "Ending Kernel Version  : `needs-restarting -r | grep kernel | awk '{ print $3 }'`.x86_64" >> /home/user/patching_reports/yum_updates.report.header
+        echo " " >> /home/user/patching_reports/yum_updates.report.header
+        echo " " >> /home/user/patching_reports/yum_updates.report.header
+        cat /home/user/patching_reports/yum_updates.report.header > /home/user/patching_reports/yum_updates.report
+        cat /home/user/patching_reports/yum_updates.report.header >> /home/user/patching_reports/yum_updates.report
       tags: reports
 
     - name: Convert report file into .txt file
       copy:
-        src: /home/dariusp/patching_reports/yum_updates.report
-        dest: /home/dariusp/patching_reports/yum_report.txt
+        src: /home/user/patching_reports/yum_updates.report
+        dest: /home/user/patching_reports/yum_report.txt
       tags: report
 
     - name: Email compiled report via s-nail
       shell: |
         mailx -s "YUM Patch Report - {{ ansible_date_time.date }}" \
-          -a /home/dariusp/patching_reports/yum_report.txt \
-          dariuspdevops@outlook.com < /dev/null
+          -a /home/user/patching_reports/yum_report.txt \
+          userdevops@outlook.com < /dev/null
       environment:
         MAILRC: /etc/s-nail.rc
       tags: report
