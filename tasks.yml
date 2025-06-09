@@ -1,8 +1,0 @@
----
-# Update Packages via yum
-- import_tasks: check-memory.yml
-- import_tasks: update-packages.yml
-- import_tasks: kernel-check.yml
-- import_tasks: 002-reboot-all.yml      
-- import_tasks: check-services-hosts.yml
-
