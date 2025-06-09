@@ -7,8 +7,8 @@
   - kernel
 
   vars_files:
-    - /home/dariusp/vars.yml
-   - /home/dariusp/vault.yml
+    - /home/user/vars.yml
+   - /home/user/vault.yml
 
   tasks:
 
