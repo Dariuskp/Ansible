@@ -5,8 +5,8 @@
 #  environment: "{{ proxy_env }}"
 
   vars_files:
-    - /home/dariusp/vars.yml
-    - /home/dariusp/vault.yml
+    - /home/user/vars.yml
+    - /home/user/vault.yml
 
   tasks:
     - name: Make sure kernel installed during patching 
